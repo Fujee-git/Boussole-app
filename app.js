@@ -8,6 +8,7 @@
 const STORAGE_KEY = 'boussole.places.v1';
 const SEEDED_KEY = 'boussole.seeded.v1';
 const HOME_ASKED_KEY = 'boussole.homeAsked.v1';
+const FAR_CHECK_KEY = 'boussole.farCheck.v1';
 
 const EMOJIS = ['🏠', '💼', '🛒', '🥖', '☕', '🍻', '🍽️', '🏫', '🏥', '💊', '🏋️', '🌳',
   '⚓', '🚉', '🚋', '🅿️', '❤️', '👪', '⭐', '💎', '🏰', '🐘', '⛪', '🏢'];
@@ -437,6 +438,18 @@ function updateStatus() {
   setStatus([statusMsgs.gps, statusMsgs.compass].filter(Boolean).join(' · '));
 }
 
+/** Une seule fois : loin de Nantes, on masque les repères nantais. */
+function hidePresetsIfFar() {
+  if (storageGet(FAR_CHECK_KEY)) return;
+  storageSet(FAR_CHECK_KEY, '1');
+  const presets = state.places.filter(p => p.preset);
+  if (!presets.length || presets.some(p => distanceM(state.position, p) < 30000)) return;
+  presets.forEach(p => { p.hidden = true; });
+  savePlaces();
+  buildPlaceEls();
+  toast('Tu n\'es pas à Nantes : repères nantais masqués (réactivables dans 📜).');
+}
+
 function startGeolocation() {
   if (!('geolocation' in navigator)) {
     statusMsgs.gps = 'Localisation indisponible sur cet appareil.';
@@ -449,7 +462,7 @@ function startGeolocation() {
     state.position = { lat, lon, accuracy, time: Date.now() };
     statusMsgs.gps = accuracy > 150 ? `Position imprécise (± ${formatDistance(accuracy)})` : '';
     updateStatus();
-    if (moved) layoutPlaces();
+    if (moved) { hidePresetsIfFar(); layoutPlaces(); }
   }, err => {
     statusMsgs.gps = err.code === 1
       ? 'Localisation refusée : autorise-la dans les réglages du navigateur.'
@@ -729,6 +742,13 @@ $('btn-here').addEventListener('click', () => {
   }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 });
 });
 
+/** Zone favorisée par la recherche : autour de l'utilisateur, sinon Nantes. */
+function searchViewbox() {
+  if (!state.position) return '-1.80,47.35,-1.35,47.08';
+  const { lat, lon } = state.position, d = 0.3;
+  return [lon - d, lat + d, lon + d, lat - d].map(v => v.toFixed(3)).join(',');
+}
+
 async function searchAddress() {
   const q = $('f-address').value.trim();
   const list = $('search-results');
@@ -738,7 +758,7 @@ async function searchAddress() {
     const url = new URL('https://nominatim.openstreetmap.org/search');
     url.search = new URLSearchParams({
       q, format: 'jsonv2', limit: '5', countrycodes: 'fr', 'accept-language': 'fr',
-      viewbox: '-1.80,47.35,-1.35,47.08', // agglomération nantaise en priorité
+      viewbox: searchViewbox(), // résultats proches en priorité
     });
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
@@ -794,6 +814,42 @@ $('btn-delete').addEventListener('click', () => {
   savePlaces();
   el.dialog.close();
   renderList();
+});
+
+// ---------------------------------------------------------------------------
+// Installation sur l'écran d'accueil
+// ---------------------------------------------------------------------------
+
+const isInstalled = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+let installPrompt = null;
+
+if (!isInstalled) {
+  document.querySelectorAll('[data-install]').forEach(e => { e.hidden = false; });
+}
+document.querySelectorAll('[data-open-install]').forEach(b => b.addEventListener('click', () => {
+  $('install-steps-ios').hidden = !isIOS;
+  $('install-steps-android').hidden = isIOS;
+  $('btn-install-now').hidden = !installPrompt;
+  $('install-dialog').showModal();
+}));
+$('btn-install-close').addEventListener('click', () => $('install-dialog').close());
+
+// Chrome Android : propose sa propre fenêtre d'installation quand c'est possible.
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+});
+$('btn-install-now').addEventListener('click', async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice.catch(() => null);
+  installPrompt = null;
+  $('install-dialog').close();
+});
+window.addEventListener('appinstalled', () => {
+  document.querySelectorAll('[data-install]').forEach(e => { e.hidden = true; });
+  toast('Boussole installée ✔ Retrouve-la parmi tes applications.');
 });
 
 // ---------------------------------------------------------------------------

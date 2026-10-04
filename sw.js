@@ -1,5 +1,5 @@
 /* Service worker : l'appli fonctionne hors ligne. Changer VERSION à chaque mise à jour. */
-const VERSION = 'boussole-v2';
+const VERSION = 'boussole-v3';
 const SHELL = [
   './',
   'index.html',

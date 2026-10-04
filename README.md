@@ -33,7 +33,11 @@ du téléphone comme une vraie application et fonctionne hors ligne.
 4. Ajoute tes autres lieux avec le bouton **📜** puis **＋**.
 
 Chacun a ses propres lieux, enregistrés uniquement sur son téléphone : personne
-d'autre ne les voit.
+d'autre ne les voit. Pas à Nantes ? Les repères nantais sont masqués
+automatiquement (réactivables dans 📜), et la recherche d'adresse privilégie ta ville.
+
+L'appli affiche aussi elle-même ce mode d'emploi (« 📲 l'installer ») quand elle est
+ouverte dans le navigateur.
 
 **La boussole semble fausse ?** 📜 → « Calibrer » : téléphone en main, en l'air
 devant toi, dessine 3 ou 4 grands 8 couchés (∞) avec le bras en faisant pivoter le

@@ -422,3 +422,9 @@ body {
 @keyframes calib { from { offset-distance: 0%; } to { offset-distance: 100%; } }
 @media (prefers-reduced-motion: reduce) { .calib-phone { animation-duration: 12s; } }
 .calib-steps { margin: 0 0 8px; padding-left: 22px; font-size: 16px; line-height: 1.35; display: grid; gap: 6px; }
+
+/* ---------- Installation ---------- */
+.install-hint { margin: 14px 0 0; font-size: 15px; }
+.install-hint[hidden], .calib-btn[hidden], .calib-steps[hidden] { display: none; }
+.link-btn { font: inherit; color: var(--wax); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.install-now { width: 100%; margin: 4px 0 12px; }

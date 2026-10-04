@@ -93,6 +93,10 @@
         <p>Cette boussole t'indique la direction et la distance de tes lieux favoris.</p>
         <p>Elle a besoin de ta <strong>position</strong> et de la <strong>boussole</strong> du téléphone. Rien ne quitte ton téléphone.</p>
         <button id="btn-start" class="btn btn-primary">Lever l'ancre</button>
+        <p class="install-hint" data-install hidden>
+          Pour l'avoir parmi tes applications :
+          <button type="button" class="link-btn" data-open-install>📲 l'installer</button>
+        </p>
       </div>
     </div>
   </main>
@@ -106,6 +110,7 @@
     </header>
     <p class="hint">Tes lieux sont enregistrés uniquement sur ce téléphone. Touche un lieu pour le modifier, ou l'œil pour l'afficher ou le masquer.</p>
     <ul id="place-list" class="place-list"></ul>
+    <button type="button" class="btn btn-ghost calib-btn" data-install data-open-install hidden>📲 Installer l'appli sur ce téléphone</button>
     <button type="button" id="btn-calib" class="btn btn-ghost calib-btn">🧭 La boussole semble fausse ? Calibrer</button>
   </section>
 
@@ -170,6 +175,26 @@
     </ol>
     <p class="hint small">Le capteur magnétique se dérègle parfois ; ce geste lui permet de se réétalonner. Pour une boussole précise, tiens ensuite le téléphone à plat ou devant toi.</p>
     <div class="dialog-actions"><span class="spacer"></span><button type="button" id="btn-calib-close" class="btn btn-primary">C'est fait !</button></div>
+  </dialog>
+
+  <!-- Aide à l'installation (affichée seulement dans le navigateur) -->
+  <dialog id="install-dialog" class="scroll-dialog">
+    <h2>Installer la boussole</h2>
+    <p>Ajoute-la à ton écran d'accueil : elle s'ouvrira comme une vraie application, même sans réseau.</p>
+    <button type="button" id="btn-install-now" class="btn btn-primary install-now" hidden>📲 Installer maintenant</button>
+    <ol id="install-steps-android" class="calib-steps" hidden>
+      <li>Ouvre cette page dans <strong>Chrome</strong> (si tu es dans une messagerie : « Ouvrir dans Chrome »).</li>
+      <li>Touche les <strong>trois points ⋮</strong> en haut à droite de Chrome.</li>
+      <li>Choisis <strong>Ajouter à l'écran d'accueil</strong> ou <strong>Installer l'application</strong>.</li>
+      <li>Lance <strong>Boussole</strong> depuis tes applications.</li>
+    </ol>
+    <ol id="install-steps-ios" class="calib-steps" hidden>
+      <li>Ouvre cette page dans <strong>Safari</strong>.</li>
+      <li>Touche le bouton <strong>Partager</strong> (carré avec une flèche vers le haut).</li>
+      <li>Choisis <strong>Sur l'écran d'accueil</strong>, puis <strong>Ajouter</strong>.</li>
+      <li>Lance <strong>Boussole</strong> depuis ton écran d'accueil.</li>
+    </ol>
+    <div class="dialog-actions"><span class="spacer"></span><button type="button" id="btn-install-close" class="btn btn-ghost">Fermer</button></div>
   </dialog>
 
   <div id="toast" class="toast" role="status" hidden></div>
