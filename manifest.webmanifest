@@ -1,0 +1,17 @@
+{
+  "name": "Boussole au trésor",
+  "short_name": "Boussole",
+  "description": "Retrouve la direction et la distance de tes lieux favoris à Nantes.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3e2b8",
+  "theme_color": "#3b2a1a",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

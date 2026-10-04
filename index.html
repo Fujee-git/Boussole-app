@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#3b2a1a">
+  <meta name="description" content="Boussole au trésor : retrouve la direction de tes lieux favoris à Nantes.">
+  <title>Boussole au trésor</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Écran principal : la boussole -->
+  <main id="screen-compass" class="screen">
+    <header class="topbar">
+      <h1>Boussole au trésor</h1>
+      <button id="btn-settings" class="icon-btn" aria-label="Mes lieux">
+        <span aria-hidden="true">📜</span>
+      </button>
+    </header>
+
+    <div id="status" class="status" hidden></div>
+
+    <div class="compass-wrap">
+      <div id="compass" class="compass">
+        <!-- Le cadran tourne avec le téléphone : le N pointe toujours vers le nord -->
+        <div id="dial" class="dial">
+          <svg class="rose" viewBox="0 0 400 400" aria-hidden="true">
+            <defs>
+              <radialGradient id="dialBg" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#f7ead0"/>
+                <stop offset="0.85" stop-color="#ead39f"/>
+                <stop offset="1" stop-color="#cfa766"/>
+              </radialGradient>
+            </defs>
+            <circle cx="200" cy="200" r="196" fill="url(#dialBg)" stroke="#5a3a1a" stroke-width="4"/>
+            <circle cx="200" cy="200" r="182" fill="none" stroke="#5a3a1a" stroke-width="1.5"/>
+            <circle cx="200" cy="200" r="118" fill="none" stroke="#5a3a1a" stroke-width="1" stroke-dasharray="3 6" opacity="0.6"/>
+            <g id="ticks"></g>
+            <!-- Rose des vents à 8 branches -->
+            <g class="rose-star" opacity="0.55">
+              <polygon points="200,60 214,186 200,200 186,186" fill="#5a3a1a"/>
+              <polygon points="200,60 214,186 200,200" fill="#8a6236"/>
+              <polygon points="340,200 214,214 200,200 214,186" fill="#5a3a1a"/>
+              <polygon points="340,200 214,214 200,200" fill="#8a6236"/>
+              <polygon points="200,340 186,214 200,200 214,214" fill="#5a3a1a"/>
+              <polygon points="200,340 186,214 200,200" fill="#8a6236"/>
+              <polygon points="60,200 186,186 200,200 186,214" fill="#5a3a1a"/>
+              <polygon points="60,200 186,186 200,200" fill="#8a6236"/>
+              <g transform="rotate(45 200 200)" opacity="0.7">
+                <polygon points="200,105 208,192 200,200 192,192" fill="#5a3a1a"/>
+                <polygon points="295,200 208,208 200,200 208,192" fill="#5a3a1a"/>
+                <polygon points="200,295 192,208 200,200 208,208" fill="#5a3a1a"/>
+                <polygon points="105,200 192,192 200,200 192,208" fill="#5a3a1a"/>
+              </g>
+            </g>
+            <polygon points="200,46 210,70 190,70" fill="#a3201b"/>
+          </svg>
+          <!-- Lettres cardinales (gardées à l'endroit en JS) -->
+          <span class="cardinal" data-angle="0">N</span>
+          <span class="cardinal" data-angle="90">E</span>
+          <span class="cardinal" data-angle="180">S</span>
+          <span class="cardinal" data-angle="270">O</span>
+          <div id="places-layer" class="places-layer"></div>
+        </div>
+
+        <!-- Aiguille du mode « Guide-moi » -->
+        <svg id="needle" class="needle" viewBox="0 0 400 400" aria-hidden="true" hidden>
+          <polygon points="200,58 222,200 200,186 178,200" fill="#a3201b" stroke="#3b2a1a" stroke-width="3" stroke-linejoin="round"/>
+          <polygon points="200,250 214,200 200,212 186,200" fill="#3b2a1a"/>
+          <circle cx="200" cy="200" r="16" fill="#d4a64a" stroke="#3b2a1a" stroke-width="4"/>
+        </svg>
+
+        <!-- Repère fixe en haut : la direction où pointe le téléphone -->
+        <div class="lubber" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <section class="helper">
+      <p id="phrase" class="phrase">Prépare-toi, moussaillon…</p>
+      <p id="subphrase" class="subphrase"></p>
+      <button id="btn-stop-guide" class="btn btn-ghost" hidden>Arrêter le guidage</button>
+    </section>
+
+    <div id="start-overlay" class="overlay">
+      <div class="scroll-card">
+        <h2>Ahoy !</h2>
+        <p>Cette boussole t'indique la direction et la distance de tes lieux favoris.</p>
+        <p>Elle a besoin de ta <strong>position</strong> et de la <strong>boussole</strong> du téléphone. Rien ne quitte ton téléphone.</p>
+        <button id="btn-start" class="btn btn-primary">Lever l'ancre</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Écran des réglages : mes lieux -->
+  <section id="screen-settings" class="screen" hidden>
+    <header class="topbar">
+      <button id="btn-back" class="icon-btn" aria-label="Retour à la boussole"><span aria-hidden="true">🧭</span></button>
+      <h1>Mes lieux</h1>
+      <button id="btn-add" class="icon-btn" aria-label="Ajouter un lieu"><span aria-hidden="true">＋</span></button>
+    </header>
+    <p class="hint">Tes lieux sont enregistrés uniquement sur ce téléphone. Touche un lieu pour le modifier, ou l'œil pour l'afficher ou le masquer.</p>
+    <ul id="place-list" class="place-list"></ul>
+    <p class="hint small">Astuce : si la boussole semble fausse, fais un grand « 8 » avec ton téléphone pour la recalibrer.</p>
+  </section>
+
+  <!-- Formulaire d'ajout / modification -->
+  <dialog id="place-dialog" class="scroll-dialog">
+    <form id="place-form" method="dialog">
+      <h2 id="form-title">Nouveau lieu</h2>
+
+      <label class="field">
+        <span>Nom</span>
+        <input id="f-name" name="name" required maxlength="30" placeholder="Maison, Travail, Boulangerie…" autocomplete="off">
+      </label>
+
+      <div class="field">
+        <span>Emblème</span>
+        <div id="f-emoji" class="chip-grid" role="radiogroup" aria-label="Emblème"></div>
+      </div>
+
+      <div class="field">
+        <span>Couleur du sceau</span>
+        <div id="f-color" class="chip-grid colors" role="radiogroup" aria-label="Couleur"></div>
+      </div>
+
+      <div class="field">
+        <span>Emplacement</span>
+        <p id="f-coords" class="coords">Aucun emplacement choisi</p>
+        <button type="button" id="btn-here" class="btn btn-secondary">📍 Je suis ici, enregistrer ma position</button>
+        <div class="search-row">
+          <input id="f-address" type="search" placeholder="Ou tape une adresse…" autocomplete="off" enterkeyhint="search">
+          <button type="button" id="btn-search" class="btn btn-secondary">🔎</button>
+        </div>
+        <p class="hint small">La recherche d'adresse interroge OpenStreetMap : l'adresse tapée est envoyée à leur serveur (mais jamais publiée).</p>
+        <ul id="search-results" class="search-results"></ul>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" id="btn-delete" class="btn btn-danger" hidden>Supprimer</button>
+        <span class="spacer"></span>
+        <button type="button" id="btn-cancel" class="btn btn-ghost">Annuler</button>
+        <button type="submit" id="btn-save" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
