@@ -106,13 +106,14 @@
     </header>
     <p class="hint">Tes lieux sont enregistrés uniquement sur ce téléphone. Touche un lieu pour le modifier, ou l'œil pour l'afficher ou le masquer.</p>
     <ul id="place-list" class="place-list"></ul>
-    <p class="hint small">Astuce : si la boussole semble fausse, fais un grand « 8 » avec ton téléphone pour la recalibrer.</p>
+    <button type="button" id="btn-calib" class="btn btn-ghost calib-btn">🧭 La boussole semble fausse ? Calibrer</button>
   </section>
 
   <!-- Formulaire d'ajout / modification -->
   <dialog id="place-dialog" class="scroll-dialog">
     <form id="place-form" method="dialog">
       <h2 id="form-title">Nouveau lieu</h2>
+      <p id="form-intro" class="hint" hidden></p>
 
       <label class="field">
         <span>Nom</span>
@@ -148,6 +149,27 @@
         <button type="submit" id="btn-save" class="btn btn-primary">Enregistrer</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- Aide à la calibration -->
+  <dialog id="calib-dialog" class="scroll-dialog">
+    <h2>Calibrer la boussole</h2>
+    <svg class="calib-anim" viewBox="0 0 240 120" aria-hidden="true">
+      <path d="M120 60 C 150 15, 215 15, 215 60 C 215 105, 150 105, 120 60 C 90 15, 25 15, 25 60 C 25 105, 90 105, 120 60 Z"
+            fill="none" stroke="#5a3a1a" stroke-width="2.5" stroke-dasharray="6 6"/>
+      <g class="calib-phone">
+        <rect x="-11" y="-19" width="22" height="38" rx="4" fill="#3b2a1a"/>
+        <rect x="-8" y="-15" width="16" height="28" rx="1.5" fill="#f3e2b8"/>
+        <polygon points="0,-12 4,-4 -4,-4" fill="#a3201b"/>
+      </g>
+    </svg>
+    <ol class="calib-steps">
+      <li>Tiens le téléphone dans ta main, <strong>en l'air devant toi</strong> (pas besoin de toucher l'écran).</li>
+      <li>Dessine un grand <strong>8 couché (∞)</strong> dans l'air avec tout le bras, en <strong>faisant pivoter le poignet</strong> pour que le téléphone s'incline dans tous les sens.</li>
+      <li>Recommence <strong>3 ou 4 fois</strong>, loin des objets métalliques (voiture, ordinateur, aimants, coque à aimant).</li>
+    </ol>
+    <p class="hint small">Le capteur magnétique se dérègle parfois ; ce geste lui permet de se réétalonner. Pour une boussole précise, tiens ensuite le téléphone à plat ou devant toi.</p>
+    <div class="dialog-actions"><span class="spacer"></span><button type="button" id="btn-calib-close" class="btn btn-primary">C'est fait !</button></div>
   </dialog>
 
   <div id="toast" class="toast" role="status" hidden></div>

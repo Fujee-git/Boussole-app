@@ -42,8 +42,12 @@ du téléphone comme une vraie application et fonctionne hors ligne.
 3. Lance « Boussole » depuis tes applications, touche **Lever l'ancre** et
    autorise la localisation.
 
-Astuce : si la boussole semble fausse, fais un grand « 8 » avec le téléphone pour
-recalibrer le capteur, et éloigne-toi des objets métalliques.
+Au premier lancement, l'appli propose d'enregistrer ta **maison** (une seule fois ;
+« Plus tard » pour passer). Elle est mémorisée sur le téléphone d'une session à l'autre.
+
+**Calibrer la boussole** (📜 → « Calibrer ») : téléphone en main, en l'air devant toi,
+dessine 3 ou 4 grands 8 couchés (∞) avec le bras en faisant pivoter le poignet dans
+tous les sens, loin des objets métalliques. Pas besoin de toucher l'écran.
 
 ## Développement
 

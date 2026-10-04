@@ -7,6 +7,7 @@
 
 const STORAGE_KEY = 'boussole.places.v1';
 const SEEDED_KEY = 'boussole.seeded.v1';
+const HOME_ASKED_KEY = 'boussole.homeAsked.v1';
 
 const EMOJIS = ['🏠', '💼', '🛒', '🥖', '☕', '🍻', '🍽️', '🏫', '🏥', '💊', '🏋️', '🌳',
   '⚓', '🚉', '🚋', '🅿️', '❤️', '👪', '⭐', '💎', '🏰', '🐘', '⛪', '🏢'];
@@ -542,6 +543,22 @@ function start() {
   startCompass();
   startGeolocation();
   render();
+  // Laisse d'abord passer la demande d'autorisation de localisation.
+  setTimeout(askHomeOnce, 800);
+}
+
+/** Au tout premier lancement, propose d'enregistrer la maison (une seule fois). */
+function askHomeOnce() {
+  if (storageGet(HOME_ASKED_KEY) || state.places.some(p => !p.preset)) return;
+  storageSet(HOME_ASKED_KEY, '1');
+  openForm(null, {
+    title: 'Où est ta maison ?',
+    intro: 'Enregistre ton domicile pour toujours retrouver le chemin du retour. Il restera uniquement sur ce téléphone. Tu pourras ajouter d\'autres lieux plus tard avec 📜.',
+    name: 'Maison',
+    emoji: '🏠',
+    color: COLORS[0],
+    cancel: 'Plus tard',
+  });
 }
 
 $('btn-start').addEventListener('click', start);
@@ -663,13 +680,20 @@ function syncCoords(label) {
   }
 }
 
-function openForm(place) {
+/**
+ * Ouvre le formulaire. `preset` pré-remplit un nouveau lieu
+ * (utilisé au premier lancement pour demander la maison).
+ */
+function openForm(place, preset = null) {
   form.editing = place;
-  form.emoji = place?.emoji ?? EMOJIS[0];
-  form.color = place?.color ?? COLORS[state.places.length % COLORS.length];
+  form.emoji = place?.emoji ?? preset?.emoji ?? EMOJIS[0];
+  form.color = place?.color ?? preset?.color ?? COLORS[state.places.length % COLORS.length];
   form.coords = place ? { lat: place.lat, lon: place.lon } : null;
-  $('form-title').textContent = place ? 'Modifier le lieu' : 'Nouveau lieu';
-  $('f-name').value = place?.name ?? '';
+  $('form-title').textContent = place ? 'Modifier le lieu' : preset?.title ?? 'Nouveau lieu';
+  $('form-intro').hidden = !preset?.intro;
+  $('form-intro').textContent = preset?.intro ?? '';
+  $('btn-cancel').textContent = preset?.cancel ?? 'Annuler';
+  $('f-name').value = place?.name ?? preset?.name ?? '';
   $('f-address').value = '';
   $('search-results').innerHTML = '';
   $('btn-delete').hidden = !place;
@@ -679,6 +703,9 @@ function openForm(place) {
 }
 
 $('btn-cancel').addEventListener('click', () => el.dialog.close());
+
+$('btn-calib').addEventListener('click', () => $('calib-dialog').showModal());
+$('btn-calib-close').addEventListener('click', () => $('calib-dialog').close());
 
 $('btn-here').addEventListener('click', () => {
   const btn = $('btn-here');
@@ -754,7 +781,8 @@ el.form.addEventListener('submit', e => {
   else state.places.push({ ...data, id: uid(), hidden: false, preset: false });
   savePlaces();
   el.dialog.close();
-  renderList();
+  if (el.screenSettings.hidden) buildPlaceEls();
+  else renderList();
   toast(form.editing ? 'Lieu modifié ✔' : 'Lieu ajouté sur la carte ✔');
 });
 
